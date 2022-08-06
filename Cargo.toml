@@ -1,0 +1,10 @@
+[package]
+name = "graphs"
+version = "0.1.0"
+edition = "2021"
+
+[package.metadata.docs.rs]
+rustdoc-args = ["--html-in-header", "docs/header.html"]
+
+[dependencies]
+rand = "0.8.5"
