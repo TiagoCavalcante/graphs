@@ -2,9 +2,12 @@ use rand::distributions::{Distribution, Uniform};
 use rand::rngs::ThreadRng;
 
 /// Uniform random number generator.
-/// ```
-/// let mut uniform_rng = BoolRng::new(1, 6);
+/// ```compile_fail
+/// // This is a private field and should not be accessible
+/// // to the end user.
+/// let mut uniform_rng = Uniform::new(1, 6);
 /// let dice: usize = uniform_rng.sample();
+/// assert!(1 <= dice && dice <= 6);
 /// ```
 pub struct UniformRng {
   uniform_rng: Uniform<usize>,

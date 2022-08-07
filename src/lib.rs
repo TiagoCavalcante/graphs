@@ -22,7 +22,7 @@
 //!   graph: &Graph,
 //!   start: usize,
 //!   end: usize,
-//! ) -> bool {
+//! ) -> Option<Vec<usize>> {
 //!   let mut queue = std::collections::VecDeque::new();
 //!
 //!   let mut distance = vec![usize::MAX; graph.size];
