@@ -878,6 +878,31 @@ impl Graph {
     Ok(())
   }
 
+  /// Add the edges from a list of connected vertices.
+  /// This is useful for building graphs from trees.
+  /// ```
+  /// use graphs::Graph;
+  ///
+  /// let mut graph = Graph::new(10);
+  ///
+  /// graph.from_vecs(&vec![vec![0, 1, 2], vec![1, 3, 4]]);
+  ///
+  /// assert!(graph.has_edge(0, 1));
+  /// assert!(graph.has_edge(1, 2));
+  /// assert!(graph.has_edge(1, 3));
+  /// assert!(graph.has_edge(3, 4));
+  /// // This should not happen.
+  /// assert!(!graph.has_edge(1, 0));
+  /// ```
+  pub fn from_vecs(&mut self, vecs: &Vec<Vec<usize>>) {
+    for vec in vecs {
+      let mut iter = vec.windows(2);
+      while let Some([a, b]) = iter.next() {
+        self.add_edge(*a, *b);
+      }
+    }
+  }
+
   /// Create a graph of `size` with no edges.
   /// ```
   /// use graphs::Graph;

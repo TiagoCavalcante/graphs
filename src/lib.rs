@@ -7,7 +7,7 @@
 //! ```toml
 //! graphs = {
 //!   git = "https://github.com/TiagoCavalcante/graphs",
-//!   tag = "0.1.0"
+//!   tag = "0.2.0"
 //! }
 //! ```
 //!
