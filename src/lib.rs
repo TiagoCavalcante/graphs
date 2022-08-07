@@ -2,7 +2,8 @@
 //!
 //! # Quick start
 //!
-//! With graphs it is super easy to create and fill graphs:
+//! With [graphs](https://github.com/TiagoCavalcante/graphs)
+//! it is super easy to create and fill graphs:
 //! ```
 //! use graphs::Graph;
 //!
@@ -46,9 +47,9 @@
 //!             current = predecessor[current];
 //!             path.push(current);
 //!           }
-//!       
+//!
 //!           path.reverse();
-//!       
+//!
 //!           return Some(path);
 //!         }
 //!       }
@@ -58,6 +59,8 @@
 //!   return None;
 //! }
 //! ```
+//!
+//! You will find more examples and fuctions in [Graph].
 
 #![deny(missing_docs)]
 #![deny(rustdoc::broken_intra_doc_links)]
@@ -71,4 +74,4 @@
 mod graph;
 mod rand;
 
-pub use self::graph::*;
+pub use self::graph::Graph;

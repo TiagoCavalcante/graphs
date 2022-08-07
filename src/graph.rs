@@ -1,4 +1,9 @@
-use super::rand::UniformRng;
+//! Graph struct and implementation.
+
+use super::rand::{BoolRng, UniformRng};
+
+use std::fs::File;
+use std::io::{BufRead, BufReader, Write};
 
 /// A unweighted graph represented using an
 /// [adjacency list](https://en.wikipedia.org/wiki/Adjacency_list).
@@ -22,6 +27,9 @@ pub struct Graph {
   /// assert_eq!(graph.size, size);
   /// ```
   pub size: usize,
+  /// The adjacency list, you should not use this directly,
+  /// if you want to get the neighbors of a vertex use
+  /// [Graph::get_neighbors] instead.
   data: Vec<Vec<usize>>,
 }
 
@@ -362,11 +370,11 @@ impl Graph {
   /// ```
   /// use graphs::Graph;
   ///
-  /// let mut graph = Graph::new(100);
+  /// let mut graph = Graph::new(50);
   /// graph.fill(1.0);
   ///
   /// // Pop the edges of all even vertices.
-  /// for vertex in (0..100).step_by(2) {
+  /// for vertex in (0..50).step_by(2) {
   ///   graph.pop_edges(vertex);
   /// }
   /// ```
@@ -427,7 +435,7 @@ impl Graph {
   /// use graphs::Graph;
   ///
   /// let mut graph = Graph::new(1_000);
-  /// graph.fill(0.1);
+  /// graph.fill_until(0.1);
   ///
   /// // This whole loop is going to be striped out when
   /// // compiling with --release.
@@ -455,14 +463,33 @@ impl Graph {
   /// The
   /// [matrix representation](https://en.wikipedia.org/wiki/Adjacency_matrix)
   /// of a [complete graph](https://en.wikipedia.org/wiki/Complete_graph)
-  /// with 3 vertices is the following:
-  /// $$\LARGE{
-  ///   \begin{bmatrix}
-  ///   0 & 1 & 1 \\
-  ///   1 & 0 & 1 \\
-  ///   1 & 1 & 0
-  ///   \end{bmatrix}
-  /// }$$
+  /// with 4 vertices is the following:
+  /// <table>
+  ///   <tr>
+  ///     <td>0</td>
+  ///     <td>1</td>
+  ///     <td>1</td>
+  ///     <td>1</td>
+  ///   </tr>
+  ///   <tr>
+  ///     <td>1</td>
+  ///     <td>0</td>
+  ///     <td>1</td>
+  ///     <td>1</td>
+  ///   </tr>
+  ///   <tr>
+  ///     <td>1</td>
+  ///     <td>1</td>
+  ///     <td>0</td>
+  ///     <td>1</td>
+  ///   </tr>
+  ///   <tr>
+  ///     <td>1</td>
+  ///     <td>1</td>
+  ///     <td>1</td>
+  ///     <td>0</td>
+  ///   </tr>
+  /// </table>
   /// The ones represent that there is an edge between the
   /// vertex with the number of the column and the vertex
   /// with the number of the row.
@@ -549,7 +576,7 @@ impl Graph {
   /// use graphs::Graph;
   ///
   /// let mut graph = Graph::new(1_000);
-  /// graph.fill(0.1);
+  /// graph.fill_until(0.1);
   ///
   /// let density = graph.density();
   /// assert!(0.09 < density && density < 0.11);
@@ -576,15 +603,17 @@ impl Graph {
   /// ```
   /// use graphs::Graph;
   ///
-  /// let mut graph = Graph::new(100);
+  /// let mut graph = Graph::new(10);
   /// graph.fill(1.0);
   ///
-  /// assert!(graph.has_edge(0, 99));
+  /// assert!(graph.has_edge(0, 9));
   /// ```
   ///
   /// If you want to do this in a graph that already have
   /// edges you need to use
   /// [Graph::fill_until] instead.
+  ///
+  /// [Graph::fill_until] is faster for sparse graphs.
   ///
   /// This is undefined behaviour in
   /// [undirected graphs](https://en.wikipedia.org/wiki/Graph_(discrete_mathematics)#Graph),
@@ -594,19 +623,17 @@ impl Graph {
   pub fn fill(&mut self, density: f32) {
     let real_density = density / self.max_data_density();
 
-    let edges = (real_density
-      // This is squared because we need to "throw the coin"
-      // for each pair of vertices.
-      * self.size.pow(2) as f32) as usize;
+    let mut edge_rng = BoolRng::new(real_density);
 
-    let mut vertex_rng = UniformRng::new(0, self.size);
-
-    for _ in 0..edges {
-      let a = vertex_rng.sample();
-      let b = vertex_rng.sample();
-
-      if a != b {
-        self.add_edge(a, b);
+    for i in 0..self.size {
+      for j in 0..self.size {
+        // This ensures we don't add edges between an vertex
+        // and itself.
+        if i != j {
+          if edge_rng.sample() {
+            self.add_edge(i, j);
+          }
+        }
       }
     }
   }
@@ -626,6 +653,9 @@ impl Graph {
   /// edges you need to use
   /// [Graph::fill_until_undirected] instead.
   ///
+  /// [Graph::fill_until_undirected] is faster for sparse
+  /// graphs.
+  ///
   /// This is undefined behaviour in
   /// [directed graphs](https://en.wikipedia.org/wiki/Directed_graph),
   /// if your graph is
@@ -634,31 +664,46 @@ impl Graph {
   pub fn fill_undirected(&mut self, density: f32) {
     let real_density = density / self.max_data_density();
 
-    let edges = (real_density
-      // This is squared because we need to "throw the coin"
-      // for each pair of vertices.
-      * self.size.pow(2) as f32
-      // And divided by 2 because when we add a connection
-      // we add 2 edges, as the graph is undirected.
-      * 0.5) as usize;
+    let mut edge_rng = BoolRng::new(real_density);
 
-    let mut vertex_rng = UniformRng::new(0, self.size);
-
-    for _ in 0..edges {
-      let a = vertex_rng.sample();
-      let b = vertex_rng.sample();
-
-      if a != b {
-        self.add_edge_undirected(a, b);
+    for i in 0..self.size {
+      for j in 0..self.size {
+        // This ensures we don't add edges between an vertex
+        // and itself, or that we add an edge twice.
+        if i < j {
+          if edge_rng.sample() {
+            self.add_edge_undirected(i, j);
+          }
+        }
       }
     }
   }
 
   /// Randomly add edges to the graph until it reaches the
   /// desired density.
+  /// ```
+  /// use graphs::Graph;
   ///
-  /// [Graph::fill] is faster, but only works in graphs
-  /// with no edges.
+  /// let mut graph = Graph::new(10);
+  ///
+  /// graph.add_edge(0, 1);
+  /// graph.add_edge(1, 2);
+  /// graph.add_edge(2, 3);
+  ///
+  /// assert!(!graph.has_edge(0, 9));
+  ///
+  /// unsafe {
+  ///   graph.fill_until(0.3);
+  /// }
+  ///
+  /// let density = graph.density();
+  ///
+  /// assert!(0.2 < density && density < 0.4);
+  /// ```
+  /// Expect this to run forever for any density above 0.7.
+  ///
+  /// [Graph::fill] is faster for dense graphs, but only
+  /// works with empty graphs.
   ///
   /// This is undefined behaviour in
   /// [undirected graphs](https://en.wikipedia.org/wiki/Graph_(discrete_mathematics)#Graph),
@@ -667,8 +712,7 @@ impl Graph {
   /// you should use [Graph::fill_until_undirected]
   /// instead.
   pub fn fill_until(&mut self, density: f32) {
-    let real_density =
-      density / self.max_data_density() - self.density();
+    let real_density = density - self.density();
 
     let mut remaining_edges = (real_density
       // This is squared because we need to "throw the coin"
@@ -701,30 +745,38 @@ impl Graph {
   ///
   /// let mut graph = Graph::new(10);
   ///
-  /// graph.add_edge(0, 1);
-  /// graph.add_edge(1, 2);
-  /// graph.add_edge(2, 3);
+  /// graph.add_edge_undirected(0, 1);
+  /// graph.add_edge_undirected(1, 2);
+  /// graph.add_edge_undirected(2, 3);
   ///
   /// assert!(!graph.has_edge(0, 9));
   ///
-  /// graph.fill_until_undirected(1.0);
-  /// assert!(graph.has_edge(0, 9));
-  /// assert!(graph.has_edge(9, 0));
+  /// unsafe {
+  ///   graph.fill_until_undirected(0.3);
+  /// }
+  ///
+  /// let density = graph.density();
+  ///
+  /// assert!(0.2 < density && density < 0.4);
   /// ```
   ///
-  /// [Graph::fill_undirected] is faster, but only works
-  /// in graphs with no edges.
+  /// Expect this to run forever for any density above 0.7.
+  ///
+  /// [Graph::fill_undirected] is faster for dense graphs,
+  /// but only works in empty graphs.
   ///
   /// This is undefined behaviour in
   /// [directed graphs](https://en.wikipedia.org/wiki/Directed_graph),
   /// if your graph is
   /// [directed](https://en.wikipedia.org/wiki/Directed_graph)
   /// you should use [Graph::fill_until] instead.
-  pub fn fill_until_undirected(&mut self, density: f32) {
-    let real_density =
-      density / self.max_data_density() - self.density();
+  pub unsafe fn fill_until_undirected(
+    &mut self,
+    density: f32,
+  ) {
+    let real_density = density - self.density();
 
-    let edges = (real_density
+    let mut remaining_edges = (real_density
       // This is squared because we need to "throw the coin"
       // for each pair of vertices.
       * self.size.pow(2) as f32
@@ -734,12 +786,18 @@ impl Graph {
 
     let mut vertex_rng = UniformRng::new(0, self.size);
 
-    for _ in 0..edges {
+    loop {
       let a = vertex_rng.sample();
       let b = vertex_rng.sample();
 
-      if a != b {
+      if a != b && !self.has_edge(a, b) {
         self.add_edge_undirected(a, b);
+
+        remaining_edges -= 1;
+
+        if remaining_edges == 0 {
+          break;
+        }
       }
     }
   }
@@ -759,6 +817,65 @@ impl Graph {
     for neighbors in &mut self.data {
       neighbors.clear();
     }
+  }
+
+  /// Load the graph from `path`.
+  /// ```
+  /// use graphs::Graph;
+  ///
+  /// let mut graph = Graph::new(100);
+  /// match graph.load("graph.grs") {
+  ///   Ok(_) => println!("Success!"),
+  ///   Err(_) => println!("An error occurred"),
+  /// }
+  /// ```
+  pub fn load(
+    &mut self,
+    path: &str,
+  ) -> std::io::Result<()> {
+    let file = File::open(path)?;
+
+    for line in BufReader::new(file).lines() {
+      let edge = line?
+        .split_whitespace()
+        .filter_map(|s| s.parse().ok())
+        .collect::<Vec<_>>();
+
+      self.add_edge(edge[0], edge[1]);
+    }
+
+    Ok(())
+  }
+
+  /// Save the graph to `path`.
+  /// ```no_run
+  /// use graphs::Graph;
+  ///
+  /// let mut graph1 = Graph::new(100);
+  ///
+  /// graph1.fill(0.3);
+  ///
+  /// graph1.save("./graphs.grs");
+  ///
+  /// let mut graph2 = Graph::new(100);
+  ///
+  /// match graph2.load("./graph.grs") {
+  ///   Ok(_) => println!("Success!"),
+  ///   Err(_) => panic!("An error occurred"),
+  /// }
+  /// ```
+  pub fn save(&self, path: &str) -> std::io::Result<()> {
+    let mut file = File::create(path)?;
+
+    for vertex in 0..self.size {
+      for neighbor in self.get_neighbors(vertex) {
+        file.write(
+          format!("{} {}\n", vertex, *neighbor).as_bytes(),
+        )?;
+      }
+    }
+
+    Ok(())
   }
 
   /// Create a graph of `size` with no edges.
