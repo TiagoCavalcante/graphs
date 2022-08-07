@@ -2,6 +2,15 @@
 //!
 //! # Quick start
 //!
+//! Add these lines bellow `[dependencies]` in your
+//! `Cargo.toml` file:
+//! ```toml
+//! graphs = {
+//!   git = "https://github.com/TiagoCavalcante/graphs",
+//!   tag = "0.1.0"
+//! }
+//! ```
+//!
 //! With [graphs](https://github.com/TiagoCavalcante/graphs)
 //! it is super easy to create and fill graphs:
 //! ```
