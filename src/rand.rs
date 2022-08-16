@@ -36,8 +36,8 @@ pub struct NormalRng {
 }
 
 impl NormalRng {
-  pub fn new(std_dev: f32) -> NormalRng {
-    let normal_rng = Normal::new(0.0, std_dev).unwrap();
+  pub fn new(mean: f32, std_dev: f32) -> NormalRng {
+    let normal_rng = Normal::new(mean, std_dev).unwrap();
     let rng = rand::thread_rng();
 
     NormalRng { normal_rng, rng }

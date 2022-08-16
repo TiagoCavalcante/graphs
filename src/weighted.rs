@@ -54,7 +54,7 @@ impl WeightedGraph {
   ///
   /// let mut graph = WeightedGraph::new(10);
   ///
-  /// graph.fill(0.8, 3.5);
+  /// graph.fill(0.8, 3.5, 6.28);
   ///
   /// // We want to ensure that there is an edge between the
   /// // vertex 0 and the vertex 1.
@@ -79,7 +79,7 @@ impl WeightedGraph {
   /// use graphs::WeightedGraph;
   ///
   /// let mut graph = WeightedGraph::new(10);
-  /// graph.fill(0.7, 0.2);
+  /// graph.fill(0.7, 0.2, 3.2);
   ///
   /// // We don't want an edge between 0 and 9, we are not
   /// // sure it it exists, so we check it it exists, and
@@ -104,7 +104,7 @@ impl WeightedGraph {
   /// use graphs::WeightedGraph;
   ///
   /// let mut graph = WeightedGraph::new(10);
-  /// graph.fill(0.1, 1.1);
+  /// graph.fill(0.1, 1.1, 25.0);
   ///
   /// if graph.has_edge(0, 1) {
   ///   println!("We are lukcy!");
@@ -117,7 +117,7 @@ impl WeightedGraph {
   /// use graphs::WeightedGraph;
   ///
   /// let mut graph = WeightedGraph::new(10);
-  /// graph.fill(0.5, 0.05);
+  /// graph.fill(0.5, 0.05, 1100.0);
   ///
   /// let vertex = 5;
   ///
@@ -205,7 +205,7 @@ impl WeightedGraph {
   ///}
   ///
   /// let mut graph = WeightedGraph::new(10);
-  /// graph.fill(0.3, 3.0);
+  /// graph.fill(0.3, 3.0, 6.8);
   ///
   /// let vertex = 5;
   /// let start = 0;
@@ -235,7 +235,7 @@ impl WeightedGraph {
   /// use graphs::WeightedGraph;
   ///
   /// let mut graph = WeightedGraph::new(50);
-  /// graph.fill(1.0, 0.1);
+  /// graph.fill(1.0, 0.1, 1.0);
   ///
   /// // Pop the edges of all even vertices.
   /// for vertex in (0..50).step_by(2) {
@@ -262,7 +262,7 @@ impl WeightedGraph {
   /// use graphs::WeightedGraph;
   ///
   /// let mut graph = WeightedGraph::new(1_000);
-  /// graph.fill_until(0.1, 0.7);
+  /// graph.fill_until(0.1, 0.7, 3.14);
   ///
   /// // This whole loop is going to be striped out when
   /// // compiling with --release.
@@ -335,7 +335,7 @@ impl WeightedGraph {
   /// let size = 100;
   ///
   /// let mut graph = WeightedGraph::new(size);
-  /// graph.fill(1.0, 0.5);
+  /// graph.fill(1.0, 0.5, 3.2);
   ///
   /// assert!(graph.max_data_density() < graph.density());
   /// ```
@@ -368,14 +368,14 @@ impl WeightedGraph {
   /// use graphs::WeightedGraph;
   ///
   /// let mut graph = WeightedGraph::new(1_000);
-  /// graph.fill_until(0.1, 0.9);
+  /// graph.fill_until(0.1, 0.9, 1.1);
   ///
   /// let density = graph.density();
   /// assert!(0.09 < density && density < 0.11);
   ///
   /// graph.clear();
   ///
-  /// graph.fill(0.1, 10.0);
+  /// graph.fill(0.1, 10.0, 9.9);
   ///
   /// let density = graph.density();
   /// assert!(0.09 < density && density < 0.11);
@@ -390,13 +390,13 @@ impl WeightedGraph {
     edges as f32 / self.max_number_of_edges() as f32
   }
 
-  /// Randomly add edges to the graph until it reaches the
-  /// desired density.
+  /// Randomly add positive weighted edges to the graph
+  /// until it reaches the desired density.
   /// ```
   /// use graphs::WeightedGraph;
   ///
   /// let mut graph = WeightedGraph::new(10);
-  /// graph.fill(1.0, 0.3);
+  /// graph.fill(1.0, 0.3, 6.7);
   ///
   /// assert!(graph.has_edge(0, 9));
   /// ```
@@ -406,11 +406,16 @@ impl WeightedGraph {
   /// [WeightedGraph::fill_until] instead.
   ///
   /// [WeightedGraph::fill_until] is faster for sparse graphs.
-  pub fn fill(&mut self, density: f32, std_dev: f32) {
+  pub fn fill(
+    &mut self,
+    density: f32,
+    mean: f32,
+    std_dev: f32,
+  ) {
     let real_density = density / self.max_data_density();
 
     let mut edge_rng = BoolRng::new(real_density);
-    let mut weight_rng = NormalRng::new(std_dev);
+    let mut weight_rng = NormalRng::new(mean, std_dev);
 
     for i in 0..self.size {
       for j in 0..self.size {
@@ -425,8 +430,8 @@ impl WeightedGraph {
     }
   }
 
-  /// Randomly add edges to the graph until it reaches the
-  /// desired density.
+  /// Randomly add positive weighted edges to the graph
+  /// until it reaches the desired density.
   /// ```
   /// use graphs::WeightedGraph;
   ///
@@ -439,7 +444,7 @@ impl WeightedGraph {
   /// assert!(!graph.has_edge(0, 9));
   ///
   /// unsafe {
-  ///   graph.fill_until(0.3, 0.25);
+  ///   graph.fill_until(0.3, 0.25, 8.4);
   /// }
   ///
   /// let density = graph.density();
@@ -450,7 +455,12 @@ impl WeightedGraph {
   ///
   /// [WeightedGraph::fill] is faster for dense graphs, but only
   /// works with empty graphs.
-  pub fn fill_until(&mut self, density: f32, std_dev: f32) {
+  pub fn fill_until(
+    &mut self,
+    density: f32,
+    mean: f32,
+    std_dev: f32,
+  ) {
     let real_density = density - self.density();
 
     let mut remaining_edges = (real_density
@@ -460,7 +470,7 @@ impl WeightedGraph {
       as usize;
 
     let mut vertex_rng = UniformRng::new(0, self.size);
-    let mut weight_rng = NormalRng::new(std_dev);
+    let mut weight_rng = NormalRng::new(mean, std_dev);
 
     while remaining_edges != 0 {
       let a = vertex_rng.sample();
@@ -479,7 +489,7 @@ impl WeightedGraph {
   /// use graphs::WeightedGraph;
   ///
   /// let mut graph = WeightedGraph::new(10);
-  /// graph.fill(1.0, 2.0);
+  /// graph.fill(1.0, 2.0, 7.8);
   ///
   /// graph.clear();
   ///
@@ -528,7 +538,7 @@ impl WeightedGraph {
   ///
   /// let mut graph1 = WeightedGraph::new(100);
   ///
-  /// graph1.fill(0.3, 0.1);
+  /// graph1.fill(0.3, 0.1, 5.0);
   ///
   /// graph1.save("./graphs.grs");
   ///
