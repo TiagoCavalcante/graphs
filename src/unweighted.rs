@@ -277,8 +277,8 @@ impl Graph {
     vertex: usize,
     neighbors: &Vec<usize>,
   ) {
-    for neighbor in neighbors {
-      self.add_edge(vertex, *neighbor);
+    for &neighbor in neighbors {
+      self.add_edge(vertex, neighbor);
     }
   }
 
@@ -352,8 +352,8 @@ impl Graph {
     vertex: usize,
     neighbors: &Vec<usize>,
   ) {
-    for neighbor in neighbors {
-      self.add_edge_undirected(vertex, *neighbor);
+    for &neighbor in neighbors {
+      self.add_edge_undirected(vertex, neighbor);
     }
   }
 
@@ -412,13 +412,13 @@ impl Graph {
     vertex: usize,
   ) -> Vec<usize> {
     let neighbors = self.data[vertex].clone();
-    for neighbor in &neighbors {
-      let position = self.data[*neighbor]
+    for &neighbor in &neighbors {
+      let position = self.data[neighbor]
         .iter()
-        .position(|v| *v == vertex)
+        .position(|&v| v == vertex)
         .unwrap();
 
-      self.data[*neighbor].swap_remove(position);
+      self.data[neighbor].swap_remove(position);
     }
 
     self.data[vertex].clear();
@@ -722,7 +722,7 @@ impl Graph {
 
     let mut vertex_rng = UniformRng::new(0, self.size);
 
-    loop {
+    while remaining_edges != 0 {
       let a = vertex_rng.sample();
       let b = vertex_rng.sample();
 
@@ -730,10 +730,6 @@ impl Graph {
         self.add_edge(a, b);
 
         remaining_edges -= 1;
-
-        if remaining_edges == 0 {
-          break;
-        }
       }
     }
   }
@@ -786,7 +782,7 @@ impl Graph {
 
     let mut vertex_rng = UniformRng::new(0, self.size);
 
-    loop {
+    while remaining_edges != 0 {
       let a = vertex_rng.sample();
       let b = vertex_rng.sample();
 
@@ -794,10 +790,6 @@ impl Graph {
         self.add_edge_undirected(a, b);
 
         remaining_edges -= 1;
-
-        if remaining_edges == 0 {
-          break;
-        }
       }
     }
   }
@@ -868,9 +860,9 @@ impl Graph {
     let mut file = File::create(path)?;
 
     for vertex in 0..self.size {
-      for neighbor in self.get_neighbors(vertex) {
+      for &neighbor in self.get_neighbors(vertex) {
         file.write(
-          format!("{} {}\n", vertex, *neighbor).as_bytes(),
+          format!("{} {}\n", vertex, neighbor).as_bytes(),
         )?;
       }
     }
@@ -897,8 +889,8 @@ impl Graph {
   pub fn from_vecs(&mut self, vecs: &Vec<Vec<usize>>) {
     for vec in vecs {
       let mut iter = vec.windows(2);
-      while let Some([a, b]) = iter.next() {
-        self.add_edge(*a, *b);
+      while let Some(&[a, b]) = iter.next() {
+        self.add_edge(a, b);
       }
     }
   }

@@ -2,6 +2,7 @@
 
 use rand::distributions::{Distribution, Uniform};
 use rand::rngs::ThreadRng;
+use rand_distr::Normal;
 
 /// Uniform random number generator.
 /// ```compile_fail
@@ -18,15 +19,32 @@ pub struct UniformRng {
 
 impl UniformRng {
   pub fn new(start: usize, end: usize) -> UniformRng {
-    let uniform_rng: Uniform<usize> =
-      Uniform::from(start..end);
-    let rng: ThreadRng = rand::thread_rng();
+    let uniform_rng = Uniform::from(start..end);
+    let rng = rand::thread_rng();
 
     UniformRng { uniform_rng, rng }
   }
 
   pub fn sample(&mut self) -> usize {
     self.uniform_rng.sample(&mut self.rng)
+  }
+}
+
+pub struct NormalRng {
+  normal_rng: Normal<f32>,
+  rng: ThreadRng,
+}
+
+impl NormalRng {
+  pub fn new(std_dev: f32) -> NormalRng {
+    let normal_rng = Normal::new(0.0, std_dev).unwrap();
+    let rng = rand::thread_rng();
+
+    NormalRng { normal_rng, rng }
+  }
+
+  pub fn sample(&mut self) -> f32 {
+    self.normal_rng.sample(&mut self.rng)
   }
 }
 
@@ -46,9 +64,8 @@ pub struct BoolRng {
 impl BoolRng {
   /// Receives the probability of yielding `true`.
   pub fn new(probability: f32) -> BoolRng {
-    let uniform_rng: Uniform<usize> =
-      Uniform::from(0..usize::MAX);
-    let rng: ThreadRng = rand::thread_rng();
+    let uniform_rng = Uniform::from(0..usize::MAX);
+    let rng = rand::thread_rng();
 
     BoolRng {
       uniform_rng,

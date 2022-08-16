@@ -80,7 +80,9 @@
 #![deny(rustdoc::invalid_rust_codeblocks)]
 #![deny(rustdoc::bare_urls)]
 
-mod graph;
 mod rand;
+mod unweighted;
+mod weighted;
 
-pub use self::graph::Graph;
+pub use self::unweighted::Graph;
+pub use self::weighted::WeightedGraph;
