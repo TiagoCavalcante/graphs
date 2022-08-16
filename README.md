@@ -6,7 +6,7 @@ Represent and manipulate graphs efficiently and easily
 
 Add this line bellow `[dependencies]` in your `Cargo.toml` file:
 ```
-graphs = { git = "https://github.com/TiagoCavalcante/graphs", tag = "0.2.0" }
+graphs = { git = "https://github.com/TiagoCavalcante/graphs", tag = "0.3.0" }
 ```
 
 And to create a graph:
