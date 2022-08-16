@@ -30,6 +30,13 @@ impl UniformRng {
   }
 }
 
+/// Uniform random positive number generator.
+/// ```compile_fail
+/// // This is a private field and should not be accessible
+/// // to the end user.
+/// let mut normal_rng = Normal::new(1.0, 0.1);
+/// assert!(normal_rng.sample() > 0);
+/// ```
 pub struct NormalRng {
   normal_rng: Normal<f32>,
   rng: ThreadRng,
@@ -44,7 +51,7 @@ impl NormalRng {
   }
 
   pub fn sample(&mut self) -> f32 {
-    self.normal_rng.sample(&mut self.rng)
+    self.normal_rng.sample(&mut self.rng).abs()
   }
 }
 
