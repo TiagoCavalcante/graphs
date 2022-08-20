@@ -62,6 +62,12 @@ impl WeightedGraph {
   ///   graph.add_edge(0, 1, 9.9);
   /// }
   /// ```
+  ///
+  /// This is undefined behaviour in
+  /// [undirected graphs](https://en.wikipedia.org/wiki/Graph_(discrete_mathematics)#Graph),
+  /// if your graph is
+  /// [undirected](https://en.wikipedia.org/wiki/Graph_(discrete_mathematics)#Graph)
+  /// you should use [Graph::add_edge_undirected] instead.
   pub fn add_edge(
     &mut self,
     a: usize,
@@ -69,6 +75,41 @@ impl WeightedGraph {
     weight: f32,
   ) {
     self.data[a].push((b, weight));
+  }
+
+  /// Add an edge between the vertices `a` and `b`.
+  ///
+  /// This is undefined behaviour if already there is an
+  /// edge between `a` and `b`, so if you are not sure if
+  /// this edge already exists you should use
+  /// [Graph::has_edge].
+  /// ```
+  /// use graphs::Graph;
+  ///
+  /// let mut graph = Graph::new(10);
+  ///
+  /// graph.fill_undirected(0.8);
+  ///
+  /// // We want to ensure that there is an edge between the
+  /// // vertex 0 and the vertex 1.
+  /// if !graph.has_edge(0, 1) {
+  ///   graph.add_edge_undirected(0, 1);
+  /// }
+  /// ```
+  ///
+  /// This is undefined behaviour in
+  /// [directed graphs](https://en.wikipedia.org/wiki/Directed_graph),
+  /// if your graph is
+  /// [directed](https://en.wikipedia.org/wiki/Directed_graph)
+  /// you should use [Graph::add_edge] instead.
+  pub fn add_edge_undirected(
+    &mut self,
+    a: usize,
+    b: usize,
+    weight: f32,
+  ) {
+    self.data[a].push((b, weight));
+    self.data[b].push((a, weight));
   }
 
   /// Remove the edge from `a` to `b` in a graph.
@@ -406,6 +447,12 @@ impl WeightedGraph {
   /// [WeightedGraph::fill_until] instead.
   ///
   /// [WeightedGraph::fill_until] is faster for sparse graphs.
+  ///
+  /// This is undefined behaviour in
+  /// [undirected graphs](https://en.wikipedia.org/wiki/Graph_(discrete_mathematics)#Graph),
+  /// if your graph is
+  /// [undirected](https://en.wikipedia.org/wiki/Graph_(discrete_mathematics)#Graph)
+  /// you should use [Graph::fill_undirected] instead.
   pub fn fill(
     &mut self,
     density: f32,
@@ -424,6 +471,53 @@ impl WeightedGraph {
         if i != j {
           if edge_rng.sample() {
             self.add_edge(i, j, weight_rng.sample());
+          }
+        }
+      }
+    }
+  }
+
+   /// Randomly add edges to the graph until it reaches the
+  /// desired density.
+  /// ```
+  /// use graphs::Graph;
+  ///
+  /// let mut graph = Graph::new(10);
+  /// graph.fill_undirected(1.0);
+  ///
+  /// assert!(graph.has_edge(0, 9));
+  /// assert!(graph.has_edge(9, 0));
+  /// ```
+  /// If you want to do this in a graph that already have
+  /// edges you need to use
+  /// [Graph::fill_until_undirected] instead.
+  ///
+  /// [Graph::fill_until_undirected] is faster for sparse
+  /// graphs.
+  ///
+  /// This is undefined behaviour in
+  /// [directed graphs](https://en.wikipedia.org/wiki/Directed_graph),
+  /// if your graph is
+  /// [directed](https://en.wikipedia.org/wiki/Directed_graph)
+  /// you should use [Graph::fill] instead.
+  pub fn fill_undirected(
+    &mut self,
+    density: f32,
+    mean: f32,
+    std_dev: f32,
+  ) {
+    let real_density = density / self.max_data_density();
+
+    let mut edge_rng = BoolRng::new(real_density);
+    let mut weight_rng = NormalRng::new(mean, std_dev);
+
+    for i in 0..self.size {
+      for j in 0..self.size {
+        // This ensures we don't add edges between an vertex
+        // and itself.
+        if i < j {
+          if edge_rng.sample() {
+            self.add_edge_undirected(i, j, weight_rng.sample());
           }
         }
       }
