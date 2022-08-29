@@ -17,8 +17,8 @@
 //! use graphs::Graph;
 //!
 //! let density = 0.1;
-//! let size = 1000;
-//! let mut graph = Graph::new(size);
+//! const size: usize = 1_000;
+//! let mut graph = Graph::<size>::new();
 //! graph.fill(density);
 //! ```
 //!
@@ -28,8 +28,8 @@
 //! ```
 //! use graphs::Graph;
 //!
-//! fn bfs(
-//!   graph: &Graph,
+//! fn bfs<const N: usize>(
+//!   graph: &Graph<N>,
 //!   start: usize,
 //!   end: usize,
 //! ) -> Option<Vec<usize>> {

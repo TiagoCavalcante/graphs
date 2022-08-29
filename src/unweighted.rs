@@ -11,29 +11,25 @@ use std::io::{BufRead, BufReader, Write};
 /// use graphs::Graph;
 ///
 /// // I told you, fast and easy.
-/// let size = 1_000_000;
-/// let graph = Graph::new(size);
-/// // The overhead is very small (note that this is not the
-/// // size of the data).
-/// assert!(std::mem::size_of_val(&graph) == 32);
+/// let graph = Graph::<1_000>::new();
 /// ```
-pub struct Graph {
+pub struct Graph<const N: usize> {
   /// The number of vertices in the graph.
   /// ```
   /// use graphs::Graph;
   ///
-  /// let size = 10_000;
-  /// let graph = Graph::new(size);
+  /// const size: usize = 10_000;
+  /// let graph = Graph::<size>::new();
   /// assert_eq!(graph.size, size);
   /// ```
   pub size: usize,
   /// The adjacency list, you should not use this directly,
   /// if you want to get the neighbors of a vertex use
   /// [Graph::get_neighbors] instead.
-  data: Vec<Vec<usize>>,
+  data: [Vec<usize>; N],
 }
 
-impl Graph {
+impl<const N: usize> Graph<N> {
   /// Add an edge between the vertices `a` and `b`.
   ///
   /// This is undefined behaviour if already there is an
@@ -43,7 +39,7 @@ impl Graph {
   /// ```
   /// use graphs::Graph;
   ///
-  /// let mut graph = Graph::new(10);
+  /// let mut graph = Graph::<10>::new();
   ///
   /// graph.fill(0.8);
   ///
@@ -72,7 +68,7 @@ impl Graph {
   /// ```
   /// use graphs::Graph;
   ///
-  /// let mut graph = Graph::new(10);
+  /// let mut graph = Graph::<10>::new();
   ///
   /// graph.fill_undirected(0.8);
   ///
@@ -104,7 +100,7 @@ impl Graph {
   /// ```
   /// use graphs::Graph;
   ///
-  /// let mut graph = Graph::new(10);
+  /// let mut graph = Graph::<10>::new();
   /// graph.fill(0.7);
   ///
   /// // We don't want an edge between 0 and 9, we are not
@@ -137,7 +133,7 @@ impl Graph {
   /// ```
   /// use graphs::Graph;
   ///
-  /// let mut graph = Graph::new(10);
+  /// let mut graph = Graph::<10>::new();
   /// graph.fill_undirected(0.5);
   ///
   /// // We want to ensure there is no edge between the
@@ -174,7 +170,7 @@ impl Graph {
   /// ```
   /// use graphs::Graph;
   ///
-  /// let mut graph = Graph::new(10);
+  /// let mut graph = Graph::<10>::new();
   /// graph.fill(0.1);
   ///
   /// if graph.has_edge(0, 1) {
@@ -187,7 +183,7 @@ impl Graph {
   /// ```
   /// use graphs::Graph;
   ///
-  /// let mut graph = Graph::new(10);
+  /// let mut graph = Graph::<10>::new();
   /// graph.fill(0.5);
   ///
   /// let vertex = 5;
@@ -213,8 +209,8 @@ impl Graph {
   /// ```
   /// use graphs::Graph;
   ///
-  /// fn shortest_path(
-  ///  graph: &Graph,
+  /// fn shortest_path<const N: usize>(
+  ///  graph: &Graph<N>,
   ///  start: usize,
   ///  end: usize,
   ///) -> Option<Vec<usize>> {
@@ -253,7 +249,7 @@ impl Graph {
   ///  return None;
   ///}
   ///
-  /// let mut graph = Graph::new(10);
+  /// let mut graph = Graph::<10>::new();
   /// graph.fill(0.3);
   ///
   /// let vertex = 5;
@@ -288,8 +284,8 @@ impl Graph {
   /// ```
   /// use graphs::Graph;
   ///
-  /// fn shortest_path(
-  ///   graph: &Graph,
+  /// fn shortest_path<const N: usize>(
+  ///   graph: &Graph<N>,
   ///   start: usize,
   ///   end: usize,
   /// ) -> Option<Vec<usize>> {
@@ -328,7 +324,7 @@ impl Graph {
   ///   return None;
   /// }
   ///
-  /// let mut graph = Graph::new(10);
+  /// let mut graph = Graph::<10>::new();
   /// graph.fill_undirected(0.5);
   ///
   /// let vertex = 5;
@@ -370,7 +366,7 @@ impl Graph {
   /// ```
   /// use graphs::Graph;
   ///
-  /// let mut graph = Graph::new(50);
+  /// let mut graph = Graph::<50>::new();
   /// graph.fill(1.0);
   ///
   /// // Pop the edges of all even vertices.
@@ -399,7 +395,7 @@ impl Graph {
   /// ```
   /// use graphs::Graph;
   ///
-  /// let mut graph = Graph::new(100);
+  /// let mut graph = Graph::<100>::new();
   /// graph.fill_undirected(1.0);
   ///
   /// // Pop the edges of all even vertices.
@@ -434,7 +430,7 @@ impl Graph {
   /// ```
   /// use graphs::Graph;
   ///
-  /// let mut graph = Graph::new(1_000);
+  /// let mut graph = Graph::<1_000>::new();
   /// graph.fill_until(0.1);
   ///
   /// // This whole loop is going to be striped out when
@@ -443,8 +439,7 @@ impl Graph {
   ///   graph.get_neighbors(vertex);
   /// }
   /// ```
-  #[inline]
-  pub fn get_neighbors(
+  pub const fn get_neighbors(
     &self,
     vertex: usize,
   ) -> &Vec<usize> {
@@ -505,15 +500,13 @@ impl Graph {
   /// ```
   /// use graphs::Graph;
   ///
-  /// let size = 100;
-  ///
-  /// let mut graph = Graph::new(size);
+  /// let mut graph = Graph::<100>::new();
   /// graph.fill(1.0);
   ///
   /// assert!(graph.max_data_density() < graph.density());
   /// ```
   pub fn max_data_density(&self) -> f32 {
-    (self.size - 1) as f32 / self.size as f32
+    (N - 1) as f32 / N as f32
   }
 
   /// Returns the maximum number of edges in a
@@ -531,7 +524,7 @@ impl Graph {
   /// ```
   /// use graphs::Graph;
   ///
-  /// let graph = Graph::new(3);
+  /// let graph = Graph::<3>::new();
   /// // The possible edges are:
   /// // 0 -> 1
   /// // 0 -> 2
@@ -542,7 +535,7 @@ impl Graph {
   /// assert_eq!(graph.max_number_of_edges(), 6);
   /// ```
   pub const fn max_number_of_edges(&self) -> usize {
-    self.size * (self.size - 1)
+    N * (N - 1)
   }
 
   /// Returns the maximum number of edges in a
@@ -558,7 +551,7 @@ impl Graph {
   /// ```
   /// use graphs::Graph;
   ///
-  /// let graph = Graph::new(3);
+  /// let graph = Graph::<3>::new();
   /// // The possible edges are:
   /// // 0 <-> 1
   /// // 0 <-> 2
@@ -577,7 +570,7 @@ impl Graph {
   /// ```
   /// use graphs::Graph;
   ///
-  /// let mut graph = Graph::new(1_000);
+  /// let mut graph = Graph::<1_000>::new();
   /// graph.fill_until(0.1);
   ///
   /// let density = graph.density();
@@ -605,7 +598,7 @@ impl Graph {
   /// ```
   /// use graphs::Graph;
   ///
-  /// let mut graph = Graph::new(10);
+  /// let mut graph = Graph::<10>::new();
   /// graph.fill(1.0);
   ///
   /// assert!(graph.has_edge(0, 9));
@@ -627,8 +620,8 @@ impl Graph {
 
     let mut edge_rng = BoolRng::new(real_density);
 
-    for i in 0..self.size {
-      for j in 0..self.size {
+    for i in 0..N {
+      for j in 0..N {
         // This ensures we don't add edges between an vertex
         // and itself.
         if i != j {
@@ -645,7 +638,7 @@ impl Graph {
   /// ```
   /// use graphs::Graph;
   ///
-  /// let mut graph = Graph::new(10);
+  /// let mut graph = Graph::<10>::new();
   /// graph.fill_undirected(1.0);
   ///
   /// assert!(graph.has_edge(0, 9));
@@ -668,8 +661,8 @@ impl Graph {
 
     let mut edge_rng = BoolRng::new(real_density);
 
-    for i in 0..self.size {
-      for j in 0..self.size {
+    for i in 0..N {
+      for j in 0..N {
         // This ensures we don't add edges between an vertex
         // and itself, or that we add an edge twice.
         if i < j {
@@ -686,7 +679,7 @@ impl Graph {
   /// ```
   /// use graphs::Graph;
   ///
-  /// let mut graph = Graph::new(10);
+  /// let mut graph = Graph::<10>::new();
   ///
   /// graph.add_edge(0, 1);
   /// graph.add_edge(1, 2);
@@ -719,10 +712,10 @@ impl Graph {
     let mut remaining_edges = (real_density
       // This is squared because we need to "throw the coin"
       // for each pair of vertices.
-      * self.size.pow(2) as f32)
+      * N.pow(2) as f32)
       as usize;
 
-    let mut vertex_rng = UniformRng::new(0, self.size);
+    let mut vertex_rng = UniformRng::new(0, N);
 
     while remaining_edges != 0 {
       let a = vertex_rng.sample();
@@ -741,7 +734,7 @@ impl Graph {
   /// ```
   /// use graphs::Graph;
   ///
-  /// let mut graph = Graph::new(10);
+  /// let mut graph = Graph::<10>::new();
   ///
   /// graph.add_edge_undirected(0, 1);
   /// graph.add_edge_undirected(1, 2);
@@ -777,12 +770,12 @@ impl Graph {
     let mut remaining_edges = (real_density
       // This is squared because we need to "throw the coin"
       // for each pair of vertices.
-      * self.size.pow(2) as f32
+      * N.pow(2) as f32
       // And divided by 2 because when we add a connection
       // we add 2 edges, as the graph is undirected.
       * 0.5) as usize;
 
-    let mut vertex_rng = UniformRng::new(0, self.size);
+    let mut vertex_rng = UniformRng::new(0, N);
 
     while remaining_edges != 0 {
       let a = vertex_rng.sample();
@@ -800,7 +793,7 @@ impl Graph {
   /// ```
   /// use graphs::Graph;
   ///
-  /// let mut graph = Graph::new(10);
+  /// let mut graph = Graph::<10>::new();
   /// graph.fill(1.0);
   ///
   /// graph.clear();
@@ -817,7 +810,7 @@ impl Graph {
   /// ```
   /// use graphs::Graph;
   ///
-  /// let mut graph = Graph::new(100);
+  /// let mut graph = Graph::<100>::new();
   /// match graph.load("graph.grs") {
   ///   Ok(_) => println!("Success!"),
   ///   Err(_) => println!("An error occurred"),
@@ -845,13 +838,13 @@ impl Graph {
   /// ```no_run
   /// use graphs::Graph;
   ///
-  /// let mut graph1 = Graph::new(100);
+  /// let mut graph1 = Graph::<100>::new();
   ///
   /// graph1.fill(0.3);
   ///
   /// graph1.save("./graphs.grs");
   ///
-  /// let mut graph2 = Graph::new(100);
+  /// let mut graph2 = Graph::<100>::new();
   ///
   /// match graph2.load("./graph.grs") {
   ///   Ok(_) => println!("Success!"),
@@ -861,7 +854,7 @@ impl Graph {
   pub fn save(&self, path: &str) -> std::io::Result<()> {
     let mut file = File::create(path)?;
 
-    for vertex in 0..self.size {
+    for vertex in 0..N {
       for &neighbor in self.get_neighbors(vertex) {
         file.write(
           format!("{} {}\n", vertex, neighbor).as_bytes(),
@@ -877,7 +870,7 @@ impl Graph {
   /// ```
   /// use graphs::Graph;
   ///
-  /// let mut graph = Graph::new(10);
+  /// let mut graph = Graph::<10>::new();
   ///
   /// graph.from_vecs(&vec![vec![0, 1, 2], vec![1, 3, 4]]);
   ///
@@ -901,13 +894,13 @@ impl Graph {
   /// ```
   /// use graphs::Graph;
   ///
-  /// let size = 10_000;
-  /// let graph = Graph::new(size);
+  /// let graph = Graph::<10_000>::new();
   /// ```
-  pub fn new(size: usize) -> Graph {
+  pub const fn new() -> Graph<N> {
+    const EMPTY_VEC: Vec<usize> = vec![];
     Graph {
-      size,
-      data: vec![vec![]; size],
+      size: N,
+      data: [EMPTY_VEC; N],
     }
   }
 }

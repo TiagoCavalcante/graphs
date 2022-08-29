@@ -18,19 +18,16 @@ use std::io::{BufRead, BufReader, Write};
 /// use graphs::WeightedGraph;
 ///
 /// // I told you, fast and easy.
-/// let size = 1_000_000;
-/// let graph = WeightedGraph::new(size);
-/// // The overhead is very small (note that this is not the
-/// // size of the data).
-/// assert!(std::mem::size_of_val(&graph) == 32);
+/// const size: usize = 1_000;
+/// let graph = WeightedGraph::<size>::new();
 /// ```
-pub struct WeightedGraph {
+pub struct WeightedGraph<const N: usize> {
   /// The number of vertices in the graph.
   /// ```
   /// use graphs::WeightedGraph;
   ///
-  /// let size = 10_000;
-  /// let graph = WeightedGraph::new(size);
+  /// const size: usize = 10_000;
+  /// let graph = WeightedGraph::<size>::new();
   /// assert_eq!(graph.size, size);
   /// ```
   pub size: usize,
@@ -39,10 +36,10 @@ pub struct WeightedGraph {
   /// [WeightedGraph::get_neighbors] instead.
   /// The 1st element is the neighbor number and the 2nd is
   /// the weight.
-  data: Vec<Vec<(usize, f32)>>,
+  data: [Vec<(usize, f32)>; N],
 }
 
-impl WeightedGraph {
+impl<const N: usize> WeightedGraph<N> {
   /// Add an edge between the vertices `a` and `b`.
   ///
   /// This is undefined behaviour if already there is an
@@ -52,7 +49,7 @@ impl WeightedGraph {
   /// ```
   /// use graphs::WeightedGraph;
   ///
-  /// let mut graph = WeightedGraph::new(10);
+  /// let mut graph = WeightedGraph::<10>::new();
   ///
   /// graph.fill(0.8, 3.5, 6.28);
   ///
@@ -84,16 +81,16 @@ impl WeightedGraph {
   /// this edge already exists you should use
   /// [Graph::has_edge].
   /// ```
-  /// use graphs::Graph;
+  /// use graphs::WeightedGraph;
   ///
-  /// let mut graph = Graph::new(10);
+  /// let mut graph = WeightedGraph::<10>::new();
   ///
-  /// graph.fill_undirected(0.8);
+  /// graph.fill_undirected(0.8, 1.0, 0.1);
   ///
   /// // We want to ensure that there is an edge between the
   /// // vertex 0 and the vertex 1.
   /// if !graph.has_edge(0, 1) {
-  ///   graph.add_edge_undirected(0, 1);
+  ///   graph.add_edge_undirected(0, 1, 0.5);
   /// }
   /// ```
   ///
@@ -119,7 +116,7 @@ impl WeightedGraph {
   /// ```
   /// use graphs::WeightedGraph;
   ///
-  /// let mut graph = WeightedGraph::new(10);
+  /// let mut graph = WeightedGraph::<10>::new();
   /// graph.fill(0.7, 0.2, 3.2);
   ///
   /// // We don't want an edge between 0 and 9, we are not
@@ -144,7 +141,7 @@ impl WeightedGraph {
   /// ```
   /// use graphs::WeightedGraph;
   ///
-  /// let mut graph = WeightedGraph::new(10);
+  /// let mut graph = WeightedGraph::<10>::new();
   /// graph.fill(0.1, 1.1, 25.0);
   ///
   /// if graph.has_edge(0, 1) {
@@ -157,7 +154,7 @@ impl WeightedGraph {
   /// ```
   /// use graphs::WeightedGraph;
   ///
-  /// let mut graph = WeightedGraph::new(10);
+  /// let mut graph = WeightedGraph::<10>::new();
   /// graph.fill(0.5, 0.05, 1100.0);
   ///
   /// let vertex = 5;
@@ -182,7 +179,7 @@ impl WeightedGraph {
   /// ```
   /// use graphs::WeightedGraph;
   ///
-  /// let mut graph = WeightedGraph::new(2);
+  /// let mut graph = WeightedGraph::<2>::new();
   /// graph.add_edge(0, 1, 55.0);
   ///
   /// assert_eq!(graph.get_edge(0, 1), Some(55.0));
@@ -205,8 +202,8 @@ impl WeightedGraph {
   /// ```
   /// use graphs::WeightedGraph;
   ///
-  /// fn shortest_path(
-  ///  graph: &WeightedGraph,
+  /// fn shortest_path<const N: usize>(
+  ///  graph: &WeightedGraph<N>,
   ///  start: usize,
   ///  end: usize,
   ///) -> Option<Vec<usize>> {
@@ -245,7 +242,7 @@ impl WeightedGraph {
   ///  return None;
   ///}
   ///
-  /// let mut graph = WeightedGraph::new(10);
+  /// let mut graph = WeightedGraph::<10>::new();
   /// graph.fill(0.3, 3.0, 6.8);
   ///
   /// let vertex = 5;
@@ -275,7 +272,7 @@ impl WeightedGraph {
   /// ```
   /// use graphs::WeightedGraph;
   ///
-  /// let mut graph = WeightedGraph::new(50);
+  /// let mut graph = WeightedGraph::<50>::new();
   /// graph.fill(1.0, 0.1, 1.0);
   ///
   /// // Pop the edges of all even vertices.
@@ -302,7 +299,7 @@ impl WeightedGraph {
   /// ```
   /// use graphs::WeightedGraph;
   ///
-  /// let mut graph = WeightedGraph::new(1_000);
+  /// let mut graph = WeightedGraph::<1_000>::new();
   /// graph.fill_until(0.1, 0.7, 3.14);
   ///
   /// // This whole loop is going to be striped out when
@@ -311,8 +308,7 @@ impl WeightedGraph {
   ///   graph.get_neighbors(vertex);
   /// }
   /// ```
-  #[inline]
-  pub fn get_neighbors(
+  pub const fn get_neighbors(
     &self,
     vertex: usize,
   ) -> &Vec<(usize, f32)> {
@@ -373,9 +369,7 @@ impl WeightedGraph {
   /// ```
   /// use graphs::WeightedGraph;
   ///
-  /// let size = 100;
-  ///
-  /// let mut graph = WeightedGraph::new(size);
+  /// let mut graph = WeightedGraph::<100>::new();
   /// graph.fill(1.0, 0.5, 3.2);
   ///
   /// assert!(graph.max_data_density() < graph.density());
@@ -388,7 +382,7 @@ impl WeightedGraph {
   /// ```
   /// use graphs::WeightedGraph;
   ///
-  /// let graph = WeightedGraph::new(3);
+  /// let graph = WeightedGraph::<3>::new();
   /// // The possible edges are:
   /// // 0 -> 1
   /// // 0 -> 2
@@ -408,7 +402,7 @@ impl WeightedGraph {
   /// ```
   /// use graphs::WeightedGraph;
   ///
-  /// let mut graph = WeightedGraph::new(1_000);
+  /// let mut graph = WeightedGraph::<1_000>::new();
   /// graph.fill_until(0.1, 0.9, 1.1);
   ///
   /// let density = graph.density();
@@ -436,7 +430,7 @@ impl WeightedGraph {
   /// ```
   /// use graphs::WeightedGraph;
   ///
-  /// let mut graph = WeightedGraph::new(10);
+  /// let mut graph = WeightedGraph::<10>::new();
   /// graph.fill(1.0, 0.3, 6.7);
   ///
   /// assert!(graph.has_edge(0, 9));
@@ -480,10 +474,10 @@ impl WeightedGraph {
   /// Randomly add edges to the graph until it reaches the
   /// desired density.
   /// ```
-  /// use graphs::Graph;
+  /// use graphs::WeightedGraph;
   ///
-  /// let mut graph = Graph::new(10);
-  /// graph.fill_undirected(1.0);
+  /// let mut graph = WeightedGraph::<10>::new();
+  /// graph.fill_undirected(1.0, 1.0, 0.1);
   ///
   /// assert!(graph.has_edge(0, 9));
   /// assert!(graph.has_edge(9, 0));
@@ -533,7 +527,7 @@ impl WeightedGraph {
   /// ```
   /// use graphs::WeightedGraph;
   ///
-  /// let mut graph = WeightedGraph::new(10);
+  /// let mut graph = WeightedGraph::<10>::new();
   ///
   /// graph.add_edge(0, 1, 1.0);
   /// graph.add_edge(1, 2, 1.0);
@@ -586,7 +580,7 @@ impl WeightedGraph {
   /// ```
   /// use graphs::WeightedGraph;
   ///
-  /// let mut graph = WeightedGraph::new(10);
+  /// let mut graph = WeightedGraph::<10>::new();
   /// graph.fill(1.0, 2.0, 7.8);
   ///
   /// graph.clear();
@@ -603,7 +597,7 @@ impl WeightedGraph {
   /// ```
   /// use graphs::WeightedGraph;
   ///
-  /// let mut graph = WeightedGraph::new(100);
+  /// let mut graph = WeightedGraph::<100>::new();
   /// match graph.load("graph.grs") {
   ///   Ok(_) => println!("Success!"),
   ///   Err(_) => println!("An error occurred"),
@@ -634,13 +628,13 @@ impl WeightedGraph {
   /// ```no_run
   /// use graphs::WeightedGraph;
   ///
-  /// let mut graph1 = WeightedGraph::new(100);
+  /// let mut graph1 = WeightedGraph::<100>::new();
   ///
   /// graph1.fill(0.3, 0.1, 5.0);
   ///
   /// graph1.save("./graphs.grs");
   ///
-  /// let mut graph2 = WeightedGraph::new(100);
+  /// let mut graph2 = WeightedGraph::<100>::new();
   ///
   /// match graph2.load("./graph.grs") {
   ///   Ok(_) => println!("Success!"),
@@ -668,7 +662,7 @@ impl WeightedGraph {
   /// ```
   /// use graphs::WeightedGraph;
   ///
-  /// let mut graph = WeightedGraph::new(10);
+  /// let mut graph = WeightedGraph::<10>::new();
   ///
   /// graph.from_vecs(&vec![
   ///   (vec![0, 1, 2], vec![1.0, 2.0]),
@@ -698,13 +692,13 @@ impl WeightedGraph {
   /// ```
   /// use graphs::WeightedGraph;
   ///
-  /// let size = 10_000;
-  /// let graph = WeightedGraph::new(size);
+  /// let graph = WeightedGraph::<10_000>::new();
   /// ```
-  pub fn new(size: usize) -> WeightedGraph {
+  pub const fn new() -> WeightedGraph<N> {
+    const EMPTY_VEC: Vec<(usize, f32)> = vec![];
     WeightedGraph {
-      size,
-      data: vec![vec![]; size],
+      size: N,
+      data: [EMPTY_VEC; N],
     }
   }
 }
