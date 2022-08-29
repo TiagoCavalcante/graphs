@@ -513,7 +513,7 @@ impl Graph {
   /// assert!(graph.max_data_density() < graph.density());
   /// ```
   pub fn max_data_density(&self) -> f32 {
-    (self.size as f32 - 1.0) / self.size as f32
+    (self.size - 1) as f32 / self.size as f32
   }
 
   /// Returns the maximum number of edges in a
@@ -541,7 +541,7 @@ impl Graph {
   /// // 2 -> 1
   /// assert_eq!(graph.max_number_of_edges(), 6);
   /// ```
-  pub fn max_number_of_edges(&self) -> usize {
+  pub const fn max_number_of_edges(&self) -> usize {
     self.size * (self.size - 1)
   }
 
@@ -565,7 +565,9 @@ impl Graph {
   /// // 1 <-> 2
   /// assert_eq!(graph.max_number_of_edges_undirected(), 3);
   /// ```
-  pub fn max_number_of_edges_undirected(&self) -> usize {
+  pub const fn max_number_of_edges_undirected(
+    &self,
+  ) -> usize {
     self.max_number_of_edges() / 2
   }
 

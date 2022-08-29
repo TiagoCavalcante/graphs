@@ -381,7 +381,7 @@ impl WeightedGraph {
   /// assert!(graph.max_data_density() < graph.density());
   /// ```
   pub fn max_data_density(&self) -> f32 {
-    (self.size as f32 - 1.0) / self.size as f32
+    (self.size - 1) as f32 / self.size as f32
   }
 
   /// Returns the maximum number of edges in a graph.
@@ -398,7 +398,7 @@ impl WeightedGraph {
   /// // 2 -> 1
   /// assert_eq!(graph.max_number_of_edges(), 6);
   /// ```
-  pub fn max_number_of_edges(&self) -> usize {
+  pub const fn max_number_of_edges(&self) -> usize {
     self.size * (self.size - 1)
   }
 
@@ -477,7 +477,7 @@ impl WeightedGraph {
     }
   }
 
-   /// Randomly add edges to the graph until it reaches the
+  /// Randomly add edges to the graph until it reaches the
   /// desired density.
   /// ```
   /// use graphs::Graph;
@@ -517,7 +517,11 @@ impl WeightedGraph {
         // and itself.
         if i < j {
           if edge_rng.sample() {
-            self.add_edge_undirected(i, j, weight_rng.sample());
+            self.add_edge_undirected(
+              i,
+              j,
+              weight_rng.sample(),
+            );
           }
         }
       }
