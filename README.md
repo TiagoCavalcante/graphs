@@ -2,10 +2,10 @@
 
 Represent and manipulate graphs efficiently and easily
 
-## Quickstart
+## Quick-start
 
 Add this line bellow `[dependencies]` in your `Cargo.toml` file:
-```
+```toml
 graphs = { git = "https://github.com/TiagoCavalcante/graphs", tag = "0.3.2" }
 ```
 

@@ -80,6 +80,8 @@
 #![deny(rustdoc::invalid_rust_codeblocks)]
 #![deny(rustdoc::bare_urls)]
 
+#[doc = include_str!("../README.md")]
+
 mod rand;
 mod unweighted;
 mod weighted;
