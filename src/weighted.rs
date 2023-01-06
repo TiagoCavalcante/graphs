@@ -45,7 +45,7 @@ pub struct WeightedGraph {
 impl WeightedGraph {
   /// Add an edge between the vertices `a` and `b`.
   ///
-  /// This is undefined behaviour if already there is an
+  /// This is undefined behavior if already there is an
   /// edge between `a` and `b`, so if you are not sure if
   /// this edge already exists you should use
   /// [WeightedGraph::has_edge].
@@ -63,7 +63,7 @@ impl WeightedGraph {
   /// }
   /// ```
   ///
-  /// This is undefined behaviour in
+  /// This is undefined behavior in
   /// [undirected graphs](https://en.wikipedia.org/wiki/Graph_(discrete_mathematics)#Graph),
   /// if your graph is
   /// [undirected](https://en.wikipedia.org/wiki/Graph_(discrete_mathematics)#Graph)
@@ -79,7 +79,7 @@ impl WeightedGraph {
 
   /// Add an edge between the vertices `a` and `b`.
   ///
-  /// This is undefined behaviour if already there is an
+  /// This is undefined behavior if already there is an
   /// edge between `a` and `b`, so if you are not sure if
   /// this edge already exists you should use
   /// [Graph::has_edge].
@@ -97,7 +97,7 @@ impl WeightedGraph {
   /// }
   /// ```
   ///
-  /// This is undefined behaviour in
+  /// This is undefined behavior in
   /// [directed graphs](https://en.wikipedia.org/wiki/Directed_graph),
   /// if your graph is
   /// [directed](https://en.wikipedia.org/wiki/Directed_graph)
@@ -113,7 +113,7 @@ impl WeightedGraph {
   }
 
   /// Remove the edge from `a` to `b` in a graph.
-  /// This is undefined behaviour if there isn't an edge
+  /// This is undefined behavior if there isn't an edge
   /// between `a` and `b`, so if you are not sure if this
   /// edge exists you should use [WeightedGraph::has_edge].
   /// ```
@@ -148,7 +148,7 @@ impl WeightedGraph {
   /// graph.fill(0.1, 1.1, 25.0);
   ///
   /// if graph.has_edge(0, 1) {
-  ///   println!("We are lukcy!");
+  ///   println!("We are lucky!");
   /// }
   /// ```
   ///
@@ -177,7 +177,7 @@ impl WeightedGraph {
     self.data[a].iter().any(|&(neighbor, _)| neighbor == b)
   }
 
-  /// Retunrs the cost of the edge from `a` to `b`, or
+  /// Returns the cost of the edge from `a` to `b`, or
   /// `None` if the edge doesn't exist.
   /// ```
   /// use graphs::WeightedGraph;
@@ -270,7 +270,7 @@ impl WeightedGraph {
 
   /// Returns the neighbors of `vertex` and remove the edges
   /// between `vertex` and its neighbors.
-  /// This may be useful in alorithms like
+  /// This may be useful in algorithms like
   /// [k-th shortest path](https://en.wikipedia.org/wiki/Yen's_algorithm).
   /// ```
   /// use graphs::WeightedGraph;
@@ -367,7 +367,7 @@ impl WeightedGraph {
   /// of the matrix representation.
   /// This is only meaningful for small graphs as the
   /// maximum "density" converges to one in big graphs.
-  /// If you didn't understant what this function does,
+  /// If you didn't understand what this function does,
   /// don't worry, you aren't really supposed to use this.
   ///
   /// ```
@@ -448,7 +448,7 @@ impl WeightedGraph {
   ///
   /// [WeightedGraph::fill_until] is faster for sparse graphs.
   ///
-  /// This is undefined behaviour in
+  /// This is undefined behavior in
   /// [undirected graphs](https://en.wikipedia.org/wiki/Graph_(discrete_mathematics)#Graph),
   /// if your graph is
   /// [undirected](https://en.wikipedia.org/wiki/Graph_(discrete_mathematics)#Graph)
@@ -495,7 +495,7 @@ impl WeightedGraph {
   /// [Graph::fill_until_undirected] is faster for sparse
   /// graphs.
   ///
-  /// This is undefined behaviour in
+  /// This is undefined behavior in
   /// [directed graphs](https://en.wikipedia.org/wiki/Directed_graph),
   /// if your graph is
   /// [directed](https://en.wikipedia.org/wiki/Directed_graph)

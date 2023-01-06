@@ -36,7 +36,7 @@ pub struct Graph {
 impl Graph {
   /// Add an edge between the vertices `a` and `b`.
   ///
-  /// This is undefined behaviour if already there is an
+  /// This is undefined behavior if already there is an
   /// edge between `a` and `b`, so if you are not sure if
   /// this edge already exists you should use
   /// [Graph::has_edge].
@@ -54,7 +54,7 @@ impl Graph {
   /// }
   /// ```
   ///
-  /// This is undefined behaviour in
+  /// This is undefined behavior in
   /// [undirected graphs](https://en.wikipedia.org/wiki/Graph_(discrete_mathematics)#Graph),
   /// if your graph is
   /// [undirected](https://en.wikipedia.org/wiki/Graph_(discrete_mathematics)#Graph)
@@ -65,7 +65,7 @@ impl Graph {
 
   /// Add an edge between the vertices `a` and `b`.
   ///
-  /// This is undefined behaviour if already there is an
+  /// This is undefined behavior if already there is an
   /// edge between `a` and `b`, so if you are not sure if
   /// this edge already exists you should use
   /// [Graph::has_edge].
@@ -83,7 +83,7 @@ impl Graph {
   /// }
   /// ```
   ///
-  /// This is undefined behaviour in
+  /// This is undefined behavior in
   /// [directed graphs](https://en.wikipedia.org/wiki/Directed_graph),
   /// if your graph is
   /// [directed](https://en.wikipedia.org/wiki/Directed_graph)
@@ -98,7 +98,7 @@ impl Graph {
   }
 
   /// Remove the edge from `a` to `b` in a directed graph.
-  /// This is undefined behaviour if there isn't an edge
+  /// This is undefined behavior if there isn't an edge
   /// between `a` and `b`, so if you are not sure if this
   /// edge exists you should use [Graph::has_edge].
   /// ```
@@ -115,7 +115,7 @@ impl Graph {
   /// }
   /// ```
   ///
-  /// This is undefined behaviour in
+  /// This is undefined behavior in
   /// [undirected graphs](https://en.wikipedia.org/wiki/Graph_(discrete_mathematics)#Graph),
   /// if your graph is
   /// [undirected](https://en.wikipedia.org/wiki/Graph_(discrete_mathematics)#Graph)
@@ -131,7 +131,7 @@ impl Graph {
   /// Remove the edge between the vertices `a` and `b` in an
   /// undirected graph.
   ///
-  /// This is undefined behaviour if there isn't an edge
+  /// This is undefined behavior if there isn't an edge
   /// between `a` and `b`, so if you are not sure if this
   /// edge exists you should use [Graph::has_edge].
   /// ```
@@ -147,7 +147,7 @@ impl Graph {
   /// }
   /// ```
   ///
-  /// This is undefined behaviour in a
+  /// This is undefined behavior in a
   /// [directed graph](https://en.wikipedia.org/wiki/Directed_graph),
   /// if your graph is
   /// [directed](https://en.wikipedia.org/wiki/Directed_graph)
@@ -178,7 +178,7 @@ impl Graph {
   /// graph.fill(0.1);
   ///
   /// if graph.has_edge(0, 1) {
-  ///   println!("We are lukcy!");
+  ///   println!("We are lucky!");
   /// }
   /// ```
   ///
@@ -267,7 +267,7 @@ impl Graph {
   /// graph.add_edges(vertex, &neighbors);
   /// ```
   ///
-  /// This is undefined behaviour in
+  /// This is undefined behavior in
   /// [undirected graphs](https://en.wikipedia.org/wiki/Graph_(discrete_mathematics)#Graph),
   /// if your graph is
   /// [undirected](https://en.wikipedia.org/wiki/Graph_(discrete_mathematics)#Graph)
@@ -342,7 +342,7 @@ impl Graph {
   /// graph.add_edges_undirected(vertex, &neighbors);
   /// ```
   ///
-  /// This is undefined behaviour in
+  /// This is undefined behavior in
   /// [directed graphs](https://en.wikipedia.org/wiki/Directed_graph),
   /// if your graph is
   /// [directed](https://en.wikipedia.org/wiki/Directed_graph)
@@ -359,10 +359,10 @@ impl Graph {
 
   /// Returns the neighbors of `vertex` and remove the edges
   /// between `vertex` and its neighbors.
-  /// This may be useful in alorithms like
+  /// This may be useful in algorithms like
   /// [k-th shortest path](https://en.wikipedia.org/wiki/Yen's_algorithm).
   ///
-  /// This is undefined behaviour in
+  /// This is undefined behavior in
   /// [undirected graphs](https://en.wikipedia.org/wiki/Graph_(discrete_mathematics)#Graph),
   /// if your graph is
   /// [undirected](https://en.wikipedia.org/wiki/Graph_(discrete_mathematics)#Graph)
@@ -388,10 +388,10 @@ impl Graph {
 
   /// Returns the neighbors of `vertex` and remove the edges
   /// between `vertex` and its neighbors.
-  /// This may be useful in alorithms like
+  /// This may be useful in algorithms like
   /// [k-th shortest path](https://en.wikipedia.org/wiki/Yen's_algorithm).
   ///
-  /// This is undefined behaviour in
+  /// This is undefined behavior in
   /// [directed graphs](https://en.wikipedia.org/wiki/Directed_graph),
   /// if your graph is
   /// [directed](https://en.wikipedia.org/wiki/Directed_graph)
@@ -499,7 +499,7 @@ impl Graph {
   /// of the matrix representation.
   /// This is only meaningful for small graphs as the
   /// maximum "density" converges to one in big graphs.
-  /// If you didn't understant what this function does,
+  /// If you didn't understand what this function does,
   /// don't worry, you aren't really supposed to use this.
   ///
   /// ```
@@ -525,7 +525,7 @@ impl Graph {
   ///
   /// Note that the maximum number of edges in a
   /// [directed graph](https://en.wikipedia.org/wiki/Directed_graph)
-  /// is always the double of the number of edes in the
+  /// is always the double of the number of edges in the
   /// equivalent
   /// [undirected graphs](https://en.wikipedia.org/wiki/Graph_(discrete_mathematics)#Graph).
   /// ```
@@ -553,7 +553,7 @@ impl Graph {
   ///
   /// Note that the maximum number of edges in a
   /// [undirected graph](https://en.wikipedia.org/wiki/Graph_(discrete_mathematics)#Graph)
-  /// is always half of the number of edes in the equivalent
+  /// is always half of the number of edges in the equivalent
   /// [directed graph](https://en.wikipedia.org/wiki/Directed_graph).
   /// ```
   /// use graphs::Graph;
@@ -617,7 +617,7 @@ impl Graph {
   ///
   /// [Graph::fill_until] is faster for sparse graphs.
   ///
-  /// This is undefined behaviour in
+  /// This is undefined behavior in
   /// [undirected graphs](https://en.wikipedia.org/wiki/Graph_(discrete_mathematics)#Graph),
   /// if your graph is
   /// [undirected](https://en.wikipedia.org/wiki/Graph_(discrete_mathematics)#Graph)
@@ -658,7 +658,7 @@ impl Graph {
   /// [Graph::fill_until_undirected] is faster for sparse
   /// graphs.
   ///
-  /// This is undefined behaviour in
+  /// This is undefined behavior in
   /// [directed graphs](https://en.wikipedia.org/wiki/Directed_graph),
   /// if your graph is
   /// [directed](https://en.wikipedia.org/wiki/Directed_graph)
@@ -707,7 +707,7 @@ impl Graph {
   /// [Graph::fill] is faster for dense graphs, but only
   /// works with empty graphs.
   ///
-  /// This is undefined behaviour in
+  /// This is undefined behavior in
   /// [undirected graphs](https://en.wikipedia.org/wiki/Graph_(discrete_mathematics)#Graph),
   /// if your graph is
   /// [undirected](https://en.wikipedia.org/wiki/Graph_(discrete_mathematics)#Graph)
@@ -763,7 +763,7 @@ impl Graph {
   /// [Graph::fill_undirected] is faster for dense graphs,
   /// but only works in empty graphs.
   ///
-  /// This is undefined behaviour in
+  /// This is undefined behavior in
   /// [directed graphs](https://en.wikipedia.org/wiki/Directed_graph),
   /// if your graph is
   /// [directed](https://en.wikipedia.org/wiki/Directed_graph)
