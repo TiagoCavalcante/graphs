@@ -631,10 +631,8 @@ impl Graph {
       for j in 0..self.size {
         // This ensures we don't add edges between an vertex
         // and itself.
-        if i != j {
-          if edge_rng.sample() {
-            self.add_edge(i, j);
-          }
+        if i != j && edge_rng.sample() {
+          self.add_edge(i, j);
         }
       }
     }
@@ -672,10 +670,8 @@ impl Graph {
       for j in 0..self.size {
         // This ensures we don't add edges between an vertex
         // and itself, or that we add an edge twice.
-        if i < j {
-          if edge_rng.sample() {
-            self.add_edge_undirected(i, j);
-          }
+        if i < j && edge_rng.sample() {
+          self.add_edge_undirected(i, j);
         }
       }
     }
@@ -702,7 +698,6 @@ impl Graph {
   ///
   /// assert!(0.2 < density && density < 0.4);
   /// ```
-  /// Expect this to run forever for any density above 0.7.
   ///
   /// [Graph::fill] is faster for dense graphs, but only
   /// works with empty graphs.
@@ -713,6 +708,9 @@ impl Graph {
   /// [undirected](https://en.wikipedia.org/wiki/Graph_(discrete_mathematics)#Graph)
   /// you should use [Graph::fill_until_undirected]
   /// instead.
+  ///
+  /// # Safety
+  /// Expect this to run forever for any density above 0.7.
   pub fn fill_until(&mut self, density: f32) {
     let real_density = density - self.density();
 
@@ -758,8 +756,6 @@ impl Graph {
   /// assert!(0.2 < density && density < 0.4);
   /// ```
   ///
-  /// Expect this to run forever for any density above 0.7.
-  ///
   /// [Graph::fill_undirected] is faster for dense graphs,
   /// but only works in empty graphs.
   ///
@@ -768,6 +764,9 @@ impl Graph {
   /// if your graph is
   /// [directed](https://en.wikipedia.org/wiki/Directed_graph)
   /// you should use [Graph::fill_until] instead.
+  ///
+  /// # Safety
+  /// Expect this to run forever for any density above 0.7.
   pub unsafe fn fill_until_undirected(
     &mut self,
     density: f32,
@@ -863,7 +862,7 @@ impl Graph {
 
     for vertex in 0..self.size {
       for &neighbor in self.get_neighbors(vertex) {
-        file.write(
+        file.write_all(
           format!("{} {}\n", vertex, neighbor).as_bytes(),
         )?;
       }

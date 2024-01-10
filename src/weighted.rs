@@ -468,10 +468,8 @@ impl WeightedGraph {
       for j in 0..self.size {
         // This ensures we don't add edges between an vertex
         // and itself.
-        if i != j {
-          if edge_rng.sample() {
-            self.add_edge(i, j, weight_rng.sample());
-          }
+        if i != j && edge_rng.sample() {
+          self.add_edge(i, j, weight_rng.sample());
         }
       }
     }
@@ -515,14 +513,12 @@ impl WeightedGraph {
       for j in 0..self.size {
         // This ensures we don't add edges between an vertex
         // and itself.
-        if i < j {
-          if edge_rng.sample() {
-            self.add_edge_undirected(
-              i,
-              j,
-              weight_rng.sample(),
-            );
-          }
+        if i < j && edge_rng.sample() {
+          self.add_edge_undirected(
+            i,
+            j,
+            weight_rng.sample(),
+          );
         }
       }
     }
@@ -653,7 +649,7 @@ impl WeightedGraph {
     for vertex in 0..self.size {
       for &(neighbor, weight) in self.get_neighbors(vertex)
       {
-        file.write(
+        file.write_all(
           format!("{} {} {}\n", vertex, neighbor, weight)
             .as_bytes(),
         )?;
